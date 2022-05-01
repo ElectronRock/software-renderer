@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 namespace {
 #pragma pack(push,1)
@@ -38,15 +39,15 @@ void tga_image::load(const char* file){
     // todo: implement
 }
 
-void tga_image::store(const char* filename) const {    
+void tga_image::store(const char* filename) const {
     std::ofstream out(filename, std::ios::binary);
     if (!out.is_open()) {
     	std::cout << "can't open file " << filename << "\n";
     	out.close();
-    	return;
+        return;
     }
     header header_obj;
-    memset((void *)&header_obj, 0, sizeof(header));
+    std::memset((void *)&header_obj, 0, sizeof(header));
     header_obj.bitsperpixel = m_bpp << 3;
     header_obj.width  = m_width;
     header_obj.height = m_height;

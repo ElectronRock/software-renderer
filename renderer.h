@@ -16,4 +16,5 @@ namespace renderer {
 
     void wireframe(const model& in_model, tga_image& in_image, const tga_image::color& color);
 
+    void raster(const model& in_model, tga_image& in_image);
 }

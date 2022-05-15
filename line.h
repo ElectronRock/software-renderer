@@ -10,11 +10,7 @@
 
 #include <vector>
 #include <cmath>
-
-struct point final {
-    int x;
-    int y;
-};
+#include "rmath.h"
 
 namespace line {
 

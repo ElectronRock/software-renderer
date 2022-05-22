@@ -12,7 +12,6 @@
 
 constexpr static unsigned Width { 1280 };
 constexpr static unsigned Height { 720 };
-constexpr static tga_image::color White{ 255, 255, 255, 0 };
 
 int main() {
     
@@ -20,10 +19,10 @@ int main() {
     tga_image img(Width, Height);
     
     // load desired model
-    model in_model("head.obj");
+    const model in_model("head.obj");
     
     // draw wires on the img
-    renderer::wireframe(in_model, img, White);
+    renderer::raster(in_model, img);
 
     // TODO:: flip img?
 

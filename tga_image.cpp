@@ -47,7 +47,7 @@ void tga_image::store(const char* filename) const {
         return;
     }
     header header_obj;
-    std::memset((void *)&header_obj, 0, sizeof(header));
+    std::memset(&header_obj, 0, sizeof(header));
     header_obj.bitsperpixel = m_bpp << 3;
     header_obj.width  = m_width;
     header_obj.height = m_height;

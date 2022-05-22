@@ -29,10 +29,11 @@ namespace renderer {
 
     void raster(const model& in_model, tga_image& in_image) {
         // create z buffer
-        std::vector<int> z_buffer(in_image.size().first * in_image.size().second, std::numeric_limits<int>::min());
+        std::vector z_buffer(in_image.size().first * in_image.size().second, std::numeric_limits<int>::min());
         auto&& vertices = in_model.get_vert();
 
         for(auto&& [p0, p1, p2] : in_model.get_trian()) {
+
             // TODO: compute intencity
             const auto intencity = 1.0;
 

@@ -52,9 +52,11 @@ struct vector3 final {
     void normalize() {
         auto&& self = *this;
         auto length = std::sqrt((double)dot(self, self));
-        x /= length;
-        y /= length;
-        z /= length;
+        if(length > 0 ) {
+            x /= length;
+            y /= length;
+            z /= length;
+        }
     }
 };
 

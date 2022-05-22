@@ -17,11 +17,14 @@ int main() {
     
     // prepare empty img
     tga_image img(Width, Height);
-    
+
+    tga_image::color white{255, 255, 255, 255};
+
     // load desired model
     const model in_model("head.obj");
     
     // draw wires on the img
+    //renderer::wireframe(in_model, img, white);
     renderer::raster(in_model, img);
 
     // TODO:: flip img?

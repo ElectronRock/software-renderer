@@ -2,6 +2,7 @@
 #include "model.h"
 #include "line.h"
 #include "rmath.h"
+#include <cstdint>
 
 namespace renderer {
 
@@ -22,8 +23,38 @@ namespace renderer {
         }
     }
 
+    vector3i to_ss(const vector3f& p, tga_image& in_image, const tga_image::color& in_color) {
+        vector3i p_new;
+        p_new.x = (p.x + 1) * in_image.size().first / 2;
+        p_new.y = (p.y + 1) * in_image.size().second / 2;
+        p_new.z = (p.z + 1) * 255;
+        return p_new;
+    }
+
     void raster_triangle(vector3f p1, vector3f p2, vector3f p3, 
         std::vector<int>& z_buffer,  tga_image& in_image, const tga_image::color& in_color) {
+        if(p1.y > p2.y)
+            std::swap(p1, p2);
+        if(p1.y > p3.y)
+            std::swap(p1, p3);
+        if(p2.y > p3.y)
+            std::swap(p2, p3);
+
+        vector3i p1p2 = p2 - p1;
+        vector3i p1p3 = p3 - p1;
+        vector3i p2p3 = p3 - p2;
+
+        for(int y = p1.y; y < p2.y; y++) {
+            double alpha = (double)(y - p1.y) / (p2.y - p1.y);
+            double beta = (double)(y - p1.y) / (p3.y - p1.y);
+            vector3i t1 = p1p2 * alpha;
+            vector3i t2 = p1p3 * beta;
+            if(t1.x > t2.x)
+                std::swap(t1, t2);
+            for(int x = t1.x; x < t2.x; x++) {
+                in_image.set(x, y, in_color);
+            }
+        }
 
     }
 
@@ -34,14 +65,21 @@ namespace renderer {
 
         for(auto&& [p0, p1, p2] : in_model.get_trian()) {
 
-            // TODO: compute intencity
-            const auto intencity = 1.0;
+            const vector3f direction(0,0,-1);
 
-            tga_image::color color{ uint8_t(intencity * 255), uint8_t(intencity * 255), 
-                uint8_t(intencity * 255), uint8_t(intencity * 255) };
 
-            raster_triangle(vertices[p0], vertices[p1], vertices[p2], 
-                z_buffer, in_image, color);
+            vector3f p0p1 = p1 - p0;
+            vector3f p0p2 = p2 - p0;
+            vector3f normal = cross(p0p2,p0p1);
+            normal.normalize();
+
+            const auto intensity = dot(normal, direction);
+
+            tga_image::color color{ uint8_t(intensity * 255), uint8_t(intensity * 255),
+                uint8_t(intensity * 255), uint8_t(intensity * 255) };
+            if (intensity > 0)
+                raster_triangle(vertices[p0], vertices[p1], vertices[p2],
+                    z_buffer, in_image, color);
         }
     }
 

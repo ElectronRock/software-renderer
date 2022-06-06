@@ -57,6 +57,7 @@ struct vector3 final {
             y /= length;
             z /= length;
         }
+
     }
 };
 

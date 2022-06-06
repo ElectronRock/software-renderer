@@ -31,7 +31,7 @@ namespace renderer {
         return p_new;
     }
 
-    void raster_triangle(vector3f p1, vector3f p2, vector3f p3, 
+    void raster_triangle(vector3i p1, vector3i p2, vector3i p3,
         std::vector<int>& z_buffer,  tga_image& in_image, const tga_image::color& in_color) {
         if(p1.y > p2.y)
             std::swap(p1, p2);
@@ -59,7 +59,7 @@ namespace renderer {
     }
 
     void raster(const model& in_model, tga_image& in_image) {
-        // create z buffer
+        // z buffer
         std::vector z_buffer(in_image.size().first * in_image.size().second, std::numeric_limits<int>::min());
         auto&& vertices = in_model.get_vert();
 
@@ -67,9 +67,8 @@ namespace renderer {
 
             const vector3f direction(0,0,-1);
 
-
-            vector3f p0p1 = p1 - p0;
-            vector3f p0p2 = p2 - p0;
+            vector3f p0p1 = vertices[p1] - vertices[p0];
+            vector3f p0p2 = vertices[p2] - vertices[p0];
             vector3f normal = cross(p0p2,p0p1);
             normal.normalize();
 
@@ -78,7 +77,7 @@ namespace renderer {
             tga_image::color color{ uint8_t(intensity * 255), uint8_t(intensity * 255),
                 uint8_t(intensity * 255), uint8_t(intensity * 255) };
             if (intensity > 0)
-                raster_triangle(vertices[p0], vertices[p1], vertices[p2],
+                raster_triangle(to_ss(vertices[p0], in_image, color), to_ss(vertices[p1], in_image, color), to_ss(vertices[p2], in_image, color),
                     z_buffer, in_image, color);
         }
     }

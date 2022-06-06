@@ -23,7 +23,7 @@ namespace renderer {
         }
     }
 
-    vector3i to_ss(const vector3f& p, tga_image& in_image, const tga_image::color& in_color) {
+    vector3i to_ss(const vector3f& p, tga_image& in_image) {
         vector3i p_new;
         p_new.x = (p.x + 1) * in_image.size().first / 2;
         p_new.y = (p.y + 1) * in_image.size().second / 2;
@@ -33,29 +33,54 @@ namespace renderer {
 
     void raster_triangle(vector3i p1, vector3i p2, vector3i p3,
         std::vector<int>& z_buffer,  tga_image& in_image, const tga_image::color& in_color) {
-        if(p1.y > p2.y)
-            std::swap(p1, p2);
-        if(p1.y > p3.y)
-            std::swap(p1, p3);
-        if(p2.y > p3.y)
-            std::swap(p2, p3);
+        if (!((p1.x == p2.x && p1.x == p3.x)||(p1.y == p2.y && p1.y == p3.y))) {
 
-        vector3i p1p2 = p2 - p1;
-        vector3i p1p3 = p3 - p1;
-        vector3i p2p3 = p3 - p2;
+            if (p1.y > p2.y)
+                std::swap(p1, p2);
+            if (p1.y > p3.y)
+                std::swap(p1, p3);
+            if (p2.y > p3.y)
+                std::swap(p2, p3);
 
-        for(int y = p1.y; y < p2.y; y++) {
-            double alpha = (double)(y - p1.y) / (p2.y - p1.y);
-            double beta = (double)(y - p1.y) / (p3.y - p1.y);
-            vector3i t1 = p1p2 * alpha;
-            vector3i t2 = p1p3 * beta;
-            if(t1.x > t2.x)
-                std::swap(t1, t2);
-            for(int x = t1.x; x < t2.x; x++) {
-                in_image.set(x, y, in_color);
+            vector3i p1p2 = p2 - p1;
+            vector3i p1p3 = p3 - p1;
+            vector3i p2p3 = p3 - p2;
+
+            for (int y = p1.y; y < p2.y; y++) {
+                double alpha = (double) (y - p1.y) / (p2.y - p1.y);
+                double beta = (double) (y - p1.y) / (p3.y - p1.y);
+                vector3i t1 = p1 + p1p2 * alpha;
+                vector3i t2 = p1 + p1p3 * beta;
+                if (t1.x > t2.x)
+                    std::swap(t1, t2);
+                vector3i t2t1 = t2 - t1;
+                for (int x = t1.x; x < t2.x; x++) {
+                    auto phi = (x - t1.x) / (t2.x - t1.x);
+                    auto cur_p = p1 + t2t1 * phi;
+                    if(z_buffer[y * in_image.size().first + x] < cur_p.z) {
+                        in_image.set(x, y, in_color);
+                        z_buffer[y * in_image.size().first + x] = cur_p.z;
+                    }
+                }
+            }
+            for (int y = p2.y; y < p3.y; y++) {
+                double alpha = (double) (y - p2.y) / (p3.y - p2.y);
+                double beta = (double) (y - p1.y) / (p3.y - p1.y);
+                vector3i t1 = p2 + p2p3 * alpha;
+                vector3i t2 = p1 + p1p3 * beta;
+                if (t1.x > t2.x)
+                    std::swap(t1, t2);
+                vector3i t2t1 = t2 - t1;
+                for (int x = t1.x; x < t2.x; x++) {
+                    auto phi = (x - t1.x) / (t2.x - t1.x);
+                    auto cur_p = p1 + t2t1 * phi;
+                    if(z_buffer[y * in_image.size().first + x] < cur_p.z) {
+                        in_image.set(x, y, in_color);
+                        z_buffer[y * in_image.size().first + x] = cur_p.z;
+                    }
+                }
             }
         }
-
     }
 
     void raster(const model& in_model, tga_image& in_image) {
@@ -77,7 +102,7 @@ namespace renderer {
             tga_image::color color{ uint8_t(intensity * 255), uint8_t(intensity * 255),
                 uint8_t(intensity * 255), uint8_t(intensity * 255) };
             if (intensity > 0)
-                raster_triangle(to_ss(vertices[p0], in_image, color), to_ss(vertices[p1], in_image, color), to_ss(vertices[p2], in_image, color),
+                raster_triangle(to_ss(vertices[p0], in_image), to_ss(vertices[p1], in_image), to_ss(vertices[p2], in_image),
                     z_buffer, in_image, color);
         }
     }

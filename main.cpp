@@ -9,6 +9,7 @@
 #include "tga_image.h"
 #include "model.h"
 #include "renderer.h"
+#include "rmath.h"
 
 constexpr static unsigned Width { 1280 };
 constexpr static unsigned Height { 720 };
@@ -25,7 +26,9 @@ int main() {
     
     // draw wires on the img
     //renderer::wireframe(in_model, img, white);
+
     renderer::raster(in_model, img);
+
 
     // TODO:: flip img?
 
